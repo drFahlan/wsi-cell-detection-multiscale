@@ -1,97 +1,139 @@
-# Multi-Scale WSI Cell Detection with Tissue-Guided Knowledge Injection
+# Evaluation of Integration Strategies for Tumor Cell Detection on the OCELOT Dataset
 
-Cell detection and classification (tumor vs. healthy) on Whole Slide Images (WSI), comparing single-scale and multi-scale input pipelines with auxiliary tissue segmentation as a source of spatial context.
+**Dwi Rezky Fahlan, Allya Paramita Koesoema, Windy Gambetta**  
+School of Electrical Engineering and Informatics, Institut Teknologi Bandung
+
+> Paper submitted to IUPESM 2025. Pre-print available upon request.
 
 ---
 
-## Problem
+## Overview
 
-Accurate detection and classification of cells in histopathology images is a critical step in computational pathology. Whole Slide Images (WSIs) are captured at multiple magnification levels, yet most detection pipelines use a single scale, discarding the spatial context available at coarser resolutions. This project investigates whether incorporating an additional WSI scale — and injecting tissue-level segmentation knowledge — improves cell detection performance.
+Tumor cell detection in histological images requires more than morphological cues — the spatial arrangement of cells within tissue is equally informative, since tumor cells tend to cluster together. The **OCELOT dataset** uniquely enables studying this relationship by providing dual-scale H&E images: a high-magnification **small field-of-view (FoV)** with cell-level annotations, and a lower-magnification **large FoV** with tissue region annotations.
 
-The dataset supports **multitask learning**: it contains annotations for both cell detection/classification (primary task) and tissue segmentation (auxiliary task). The auxiliary task provides spatial priors that may inform cell-level predictions.
+This paper systematically evaluates two strategies for integrating tissue segmentation predictions into a cell detection pipeline — **pre-processing** and **post-processing** — under a consistent architecture, to identify the strengths and limitations of each approach.
 
 ---
 
 ## Dataset
 
-This project uses the **[OCELOT 2023](https://ocelot.grand-challenge.org/)** dataset, a publicly available benchmark for cell detection in histopathology.
+The [OCELOT 2023](https://ocelot.grand-challenge.org/) dataset contains dual-scale histopathology image pairs collected from 306 TCGA WSIs across 6 organs (kidney, head-and-neck, prostate, stomach, endometrium, bladder). Annotations were produced by board-certified pathologists.
 
 | Property | Detail |
 |---|---|
-| Task | Cell detection + classification (tumor / background) |
-| Modality | H&E stained WSI patches |
-| Scales | Cell-level crop + tissue-level crop (two scales per sample) |
-| Auxiliary labels | Tissue region segmentation (tumor / background tissue) |
-| Split | Train / Val / Test |
+| Total samples | 673 (train / val / test: ~400 / 137 / 126) |
+| Small FoV resolution | ~0.19 µm/px (cell-scale) |
+| Large FoV resolution | ~0.77 µm/px (tissue-scale) |
+| Cell annotation | Point annotations: **tumor cell** / **background cell** (balanced) |
+| Tissue annotation | Pixel-level: **cancer area** / **non-cancer area** |
 
-EDA findings that motivated experimental design choices are documented in [`eda/README.md`](eda/README.md).
+EDA findings that motivated design decisions are in [`eda/README.md`](eda/README.md).
 
 ---
 
-## Experimental Design
+## Method
 
-Four experimental conditions were compared:
+### Pipeline Overview
 
-| # | Condition | Description |
+The pipeline consists of two stages run sequentially:
+
+**Stage 1 — Tissue Segmentation:**  
+A **U-Net++ with SE-ResNet50 encoder** (pretrained on ImageNet, fine-tuned on OCELOT) generates a tumor region probability map from the large FoV. During inference, a 512×512 patch centered on the small FoV is extracted from the large FoV and fed to the model; the output is then cropped to the exact small FoV region. This allows the model to use surrounding tissue context beyond the small FoV boundary.
+
+**Stage 2 — Cell Detection:**  
+An **Attention U-Net with ResNet34 encoder** (pretrained on ImageNet, fine-tuned on OCELOT) takes the small FoV as input and outputs a two-channel cell probability map (one channel per class). Post-processing detects local maxima, extracts confidence scores, and applies cross-channel filtering to resolve conflicting predictions.
+
+### Integration Strategies
+
+The tumor region probability map from Stage 1 is injected into Stage 2 at two different points:
+
+| Strategy | Where | How |
 |---|---|---|
-| 1 | **Baseline** | Single-scale input, cell detection only |
-| 2 | **Multi-scale** | Cell-scale + tissue-scale input combined |
-| 3 | **Knowledge injection** | Tissue segmentation prediction used as auxiliary input to cell detection |
-| 4 | **Multi-scale + Knowledge injection** | Both extensions combined |
+| **Baseline** | — | No integration; cell detection uses only the small FoV |
+| **Pre-processing** | Input | Tumor probability map concatenated to the small FoV → 4-channel input |
+| **Post-processing** | Confidence scoring | Gaussian-weighted sampling from the tumor probability map refines per-cell confidence scores before cross-channel filtering |
 
-See [`notebooks/README.md`](notebooks/README.md) for the full notebook index and links to versions with outputs.
+The pre-processing strategy allows the model to **learn from tissue context during training**. The post-processing strategy is training-free and provides greater flexibility, but the model itself receives no tissue information during learning.
 
 ---
 
-## Key Findings
+## Results
 
-> Results will be updated when paper is finalized.
+### Tissue Segmentation
 
-| Condition | F1 | Precision | Recall |
+Our U-Net++ model outperforms the SoftCTM baseline on both splits:
+
+| Method | Val mF1 | Test mF1 |
+|---|---|---|
+| **Our method** | **0.9048** | **0.9092** |
+| SoftCTM | 0.8571 | 0.8951 |
+
+Performance of the tumor probability map cropped to the small FoV region (the actual input to Stage 2):
+
+| Split | F1 (non-cancer) | F1 (cancer) | mF1 |
 |---|---|---|---|
-| Baseline | — | — | — |
-| Multi-scale | — | — | — |
-| Knowledge injection | — | — | — |
-| Multi-scale + KI | — | — | — |
+| Train | 0.9568 | 0.9432 | 0.9500 |
+| Val | 0.9051 | 0.8733 | 0.8892 |
+| Test | 0.9013 | 0.8913 | 0.8963 |
 
-Qualitative detection examples and scale comparison figures are in [`assets/`](assets/).
+### Cell Detection
 
----
+| Integration | Set | BG Precision | BG Recall | BG F1 | Tumor Precision | Tumor Recall | Tumor F1 | **mF1** |
+|---|---|---|---|---|---|---|---|---|
+| No-integration | Val | 0.5162 | 0.5445 | 0.5300 | 0.7441 | 0.6297 | 0.6821 | 0.6060 |
+| No-integration | Test | 0.6411 | 0.3937 | 0.4878 | 0.6046 | 0.7191 | 0.6569 | 0.5724 |
+| Pre-processing | Val | 0.5826 | **0.7076** | **0.6391** | **0.8088** | 0.6770 | **0.7370** | **0.6881** |
+| Pre-processing | Test | 0.6762 | 0.6521 | **0.6639** | 0.7282 | 0.7156 | **0.7218** | **0.6929** |
+| Post-processing | Val | 0.5698 | 0.6037 | 0.5862 | 0.7828 | 0.6606 | 0.7165 | 0.6514 |
+| Post-processing | Test | **0.6972** | 0.4632 | 0.5566 | 0.6402 | **0.7375** | 0.6854 | 0.6210 |
 
-## Architecture
+### Comparison with Prior Work (Test Set)
 
-<!-- Replace with actual architecture diagram -->
-![Architecture](assets/architecture.png)
+| Method | mF1 | mF1 Improvement |
+|---|---|---|
+| Ji et al. | 0.7056 | +0.0166 |
+| Ryu et al. | 0.7123 | +0.0679 |
+| **Our method (pre-processing)** | **0.6929** | **+0.1205** |
+
+Our method achieves the **largest mF1 improvement** (+0.1205) among reported methods on this evaluation set, despite using a lightweight architecture (Attention U-Net + ResNet34). This validates the hypothesis that maximizing tissue segmentation quality translates directly into cell detection gains.
+
+### Key Takeaway
+
+- **Pre-processing integration** achieves the best overall mF1 and is well-balanced across both classes — recommended when training resources are available.
+- **Post-processing integration** achieves the highest tumor cell recall (0.7375 on test), which is particularly relevant in clinical settings where missing a tumor cell is costly — and requires no retraining.
 
 ---
 
 ## Repository Structure
 
 ```
-├── notebooks/          ← stripped notebooks (no outputs); full versions linked from notebooks/README.md
-├── eda/                ← EDA findings and their influence on design decisions
-├── assets/             ← figures: architecture, results table, detection examples
-└── requirements.txt    ← Python dependencies
+├── notebooks/
+│   ├── README.md                                          ← notebook index + Google Drive links
+│   ├── 01_eda_preprocessing.ipynb                        ← EDA and data preprocessing
+│   ├── 02_tissue_segmentation.ipynb                      ← tissue segmentation model
+│   ├── 03_baseline_modeling.ipynb                        ← baseline cell detection (no integration)
+│   ├── 04_preprocessing_integration.ipynb                ← pre-processing stage integration
+│   └── 05_postprocessing_integration.ipynb               ← post-processing stage integration
+├── eda/
+│   └── README.md                                         ← EDA findings and design decisions
+├── assets/                                               ← figures
+└── requirements.txt
 ```
 
 ---
 
 ## Reproducibility Note
 
-Experiments were run on **Google Colab** with data loaded from Google Drive. Notebooks in this repository have outputs stripped to keep file sizes manageable. Full notebooks with outputs are available via Google Drive links in [`notebooks/README.md`](notebooks/README.md).
+All experiments were run on **Google Colab** (GPU runtime, Python 3). Data is loaded from Google Drive. Notebooks in this repository are stripped of outputs to keep file sizes manageable. Full notebooks with all outputs are linked in [`notebooks/README.md`](notebooks/README.md).
 
-The OCELOT dataset can be downloaded from the [official challenge page](https://ocelot.grand-challenge.org/).
-
----
-
-## Paper
-
-<!-- Add citation or link when available -->
-A paper describing this work was submitted to IUPESM 2025. It will be linked here upon publication.
+The OCELOT dataset is publicly available at the [official challenge page](https://ocelot.grand-challenge.org/).
 
 ---
 
-## Author
+## Citation
 
-**Dwi Rezky Fahlan**  
-GitHub: [@drFahlan](https://github.com/drFahlan)
+```
+Fahlan, D.R., Koesoema, A.P., Gambetta, W. (2025). Evaluation of the Impact of Different
+Integration Strategies on Cell Detection Performance: A Study on the OCELOT Dataset.
+IUPESM 2025.
+```
