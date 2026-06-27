@@ -120,6 +120,18 @@ Our method achieves the **largest mF1 improvement** (+0.1205) among reported met
 - **Pre-processing integration** achieves the best overall mF1 and is well-balanced across both classes — recommended when training resources are available.
 - **Post-processing integration** achieves the highest tumor cell recall (0.7375 on test), which is particularly relevant in clinical settings where missing a tumor cell is costly — and requires no retraining.
 
+### Qualitative Results
+
+<p align="center">
+  <img src="assets/qualitative_success.png" width="600"/>
+  <br><em>Fig. 5. Success case: reliable tumor region probability map leads to more accurate tumor cell detection.</em>
+</p>
+
+<p align="center">
+  <img src="assets/qualitative_limitation.png" width="600"/>
+  <br><em>Fig. 6. Limitation case: despite a reliable tumor region probability map, integration provides limited benefit when tumor cells are dispersed among background cells.</em>
+</p>
+
 ---
 
 ## Repository Structure
