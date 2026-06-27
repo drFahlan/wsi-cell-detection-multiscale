@@ -27,6 +27,8 @@ The [OCELOT 2023](https://ocelot.grand-challenge.org/) dataset contains dual-sca
 
 EDA findings that motivated design decisions are in [`eda/README.md`](eda/README.md).
 
+![Dataset Sample](assets/dataset_sample.png)
+
 ---
 
 ## Method
@@ -52,6 +54,12 @@ The tumor region probability map from Stage 1 is injected into Stage 2 at two di
 | **Post-processing** | Confidence scoring | Gaussian-weighted sampling from the tumor probability map refines per-cell confidence scores before cross-channel filtering |
 
 The pre-processing strategy allows the model to **learn from tissue context during training**. The post-processing strategy is training-free and provides greater flexibility, but the model itself receives no tissue information during learning.
+
+![Cell Detection Pipeline](assets/pipeline.png)
+
+| Pre-processing integration | Post-processing integration |
+|---|---|
+| ![](assets/integration_preprocessing.png) | ![](assets/integration_postprocessing.png) |
 
 ---
 
