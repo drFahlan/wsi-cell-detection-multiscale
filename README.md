@@ -27,7 +27,10 @@ The [OCELOT 2023](https://ocelot.grand-challenge.org/) dataset contains dual-sca
 
 EDA findings that motivated design decisions are in [`eda/README.md`](eda/README.md).
 
-![Dataset Sample](assets/dataset_sample.png)
+<p align="center">
+  <img src="assets/dataset_sample.png" width="480"/>
+  <br><em>Fig. 1. A sample from the OCELOT dataset. Large FoV (tissue-scale) and Small FoV (cell-scale) with their corresponding annotations. In the tissue annotation, white = cancer area; in the cell annotation, blue = tumor cell, yellow = background cell.</em>
+</p>
 
 ---
 
@@ -55,11 +58,16 @@ The tumor region probability map from Stage 1 is injected into Stage 2 at two di
 
 The pre-processing strategy allows the model to **learn from tissue context during training**. The post-processing strategy is training-free and provides greater flexibility, but the model itself receives no tissue information during learning.
 
-![Cell Detection Pipeline](assets/pipeline.png)
+<p align="center">
+  <img src="assets/pipeline.png" width="600"/>
+  <br><em>Fig. 2. Cell detection pipeline: Small FoV → pre-processing → Attention U-Net → two-channel cell probability map → post-processing (local maxima detection, confidence scoring, cross-channel filtering) → cell detection results.</em>
+</p>
 
-| Pre-processing integration | Post-processing integration |
-|---|---|
-| ![](assets/integration_preprocessing.png) | ![](assets/integration_postprocessing.png) |
+<p align="center">
+  <img src="assets/integration_preprocessing.png" width="420"/>
+  <img src="assets/integration_postprocessing.png" width="420"/>
+  <br><em>Fig. 3. Integration strategies. Left: pre-processing stage — tumor probability map concatenated to the small FoV as a 4-channel input. Right: post-processing stage — Gaussian-weighted sampling from the probability map refines per-cell confidence scores.</em>
+</p>
 
 ---
 
