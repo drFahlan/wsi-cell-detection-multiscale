@@ -9,9 +9,7 @@ School of Electrical Engineering and Informatics, Institut Teknologi Bandung
 
 ## Overview
 
-Tumor cell detection in histological images requires more than morphological cues — the spatial arrangement of cells within tissue is equally informative, since tumor cells tend to cluster together. The **OCELOT dataset** uniquely enables studying this relationship by providing dual-scale H&E images: a high-magnification **small field-of-view (FoV)** with cell-level annotations, and a lower-magnification **large FoV** with tissue region annotations.
-
-This paper systematically evaluates two strategies for integrating tissue segmentation predictions into a cell detection pipeline — **pre-processing** and **post-processing** — under a consistent architecture, to identify the strengths and limitations of each approach.
+The OCELOT dataset enables feature sharing between tissue segmentation and cell detection, yet the impact of different integration strategies on cell detection performance remains underexplored. We systematically evaluate **pre-processing** and **post-processing** integration strategies under a consistent pipeline. Pre-processing integration achieves the highest overall mF1 (0.6929) and the largest improvement over the no-integration baseline (+0.1205) among related works on the same evaluation set. Post-processing integration yields the highest tumor cell recall. Both strategies outperform the baseline, and the detailed comparison provides practical guidance for designing integration strategies in future multi-task cell detection research.
 
 ---
 
