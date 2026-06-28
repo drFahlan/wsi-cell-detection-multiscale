@@ -16,4 +16,4 @@ All notebooks are stripped of outputs. Full versions with all outputs are availa
 
 All notebooks were developed on **Google Colab** (Python 3, GPU runtime). Key dependencies are in [`../requirements.txt`](../requirements.txt).
 
-To run locally, mount the OCELOT dataset from Google Drive or download it from the [official challenge page](https://ocelot.grand-challenge.org/) and update the data paths at the top of each notebook.
+To run locally, mount the OCELOT dataset from Google Drive or download it from the [official challenge page](https://ocelot2023.grand-challenge.org/datasets/) and update the data paths at the top of each notebook.

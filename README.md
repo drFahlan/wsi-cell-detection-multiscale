@@ -15,7 +15,7 @@ Accurate tumor cell detection in histopathology depends not only on cellular mor
 
 ## Dataset
 
-The [OCELOT 2023](https://ocelot.grand-challenge.org/) dataset is specifically designed to facilitate the study of cell-tissue relationships in histopathology. Each sample consists of a matched dual-scale image pair — a high-magnification **small FoV** for cell detection and a lower-magnification **large FoV** for tissue segmentation — with annotations provided at both scales. This structure is what makes it possible to systematically study how tissue-level information can be integrated into a cell detection pipeline. Images are collected from 306 TCGA WSIs across 6 organs, annotated by board-certified pathologists.
+The [OCELOT 2023](https://ocelot2023.grand-challenge.org/datasets/) dataset is specifically designed to facilitate the study of cell-tissue relationships in histopathology. Each sample consists of a matched dual-scale image pair — a high-magnification **small FoV** for cell detection and a lower-magnification **large FoV** for tissue segmentation — with annotations provided at both scales. This structure is what makes it possible to systematically study how tissue-level information can be integrated into a cell detection pipeline. Images are collected from 306 TCGA WSIs across 6 organs, annotated by board-certified pathologists.
 
 | Property | Detail |
 |---|---|
@@ -162,7 +162,7 @@ Our method achieves the **largest mF1 improvement** (+0.1205) among reported met
 
 All experiments were run on **Google Colab** (GPU runtime, Python 3). Data is loaded from Google Drive. Notebooks in this repository are stripped of outputs to keep file sizes manageable. Full notebooks with all outputs are linked in [`notebooks/README.md`](notebooks/README.md).
 
-The OCELOT dataset is publicly available at the [official challenge page](https://ocelot.grand-challenge.org/).
+The OCELOT dataset is publicly available at the [official challenge page](https://ocelot2023.grand-challenge.org/datasets/).
 
 ---
 
