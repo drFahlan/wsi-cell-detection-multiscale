@@ -43,7 +43,7 @@ At the high-magnification small FoV, individual cell nuclei are clearly visible 
 
 ---
 
-## Full EDA
+## Additional EDA
 
 ### Dataset verification
 
