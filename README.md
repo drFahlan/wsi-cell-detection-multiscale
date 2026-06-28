@@ -46,6 +46,11 @@ A **U-Net++ with SE-ResNet50 encoder** (pretrained on ImageNet, fine-tuned on OC
 **Stage 2 — Cell Detection:**  
 An **Attention U-Net with ResNet34 encoder** (pretrained on ImageNet, fine-tuned on OCELOT) takes the small FoV as input and outputs a two-channel cell probability map (one channel per class). Post-processing detects local maxima, extracts confidence scores, and applies cross-channel filtering to resolve conflicting predictions.
 
+<p align="center">
+  <img src="assets/pipeline.png" width="600"/>
+  <br><em>Fig. 2. Cell detection pipeline.</em>
+</p>
+
 ### Integration Strategies
 
 The tumor region probability map from Stage 1 is injected into Stage 2 at two different points:
@@ -57,11 +62,6 @@ The tumor region probability map from Stage 1 is injected into Stage 2 at two di
 | **Post-processing** | Confidence scoring | Gaussian-weighted sampling from the tumor probability map refines per-cell confidence scores before cross-channel filtering |
 
 The pre-processing strategy allows the model to **learn from tissue context during training**. The post-processing strategy is training-free and provides greater flexibility, but the model itself receives no tissue information during learning.
-
-<p align="center">
-  <img src="assets/pipeline.png" width="600"/>
-  <br><em>Fig. 2. Cell detection pipeline.</em>
-</p>
 
 <p align="center">
   <img src="assets/integration_preprocessing.png" width="500"/>
