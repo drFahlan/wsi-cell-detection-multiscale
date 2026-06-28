@@ -11,11 +11,6 @@ Tumor and background cells show high intra-class morphological diversity — app
 **Decision:** Rather than improving cell-level feature extraction, the focus shifted to injecting tissue-level spatial context into the cell detection pipeline — motivating the entire integration strategy study.
 
 <p align="center">
-  <img src="../assets/eda_cell_visual_analysis.png" width="600"/>
-  <br><em>Cell visual analysis: high intra-class morphological diversity makes appearance alone unreliable as a classifier.</em>
-</p>
-
-<p align="center">
   <img src="../assets/eda_spatial_arrangement.png" width="500"/>
   <br><em>Blue = tumor cells, yellow = background cells. Tumor cells cluster together within cancer regions.</em>
 </p>
