@@ -43,12 +43,17 @@ The pipeline consists of two stages run sequentially:
 **Stage 1 — Tissue Segmentation:**  
 A **U-Net++ with SE-ResNet50 encoder** (pretrained on ImageNet, fine-tuned on OCELOT) generates a tumor region probability map from the large FoV. During inference, a 512×512 patch centered on the small FoV is extracted from the large FoV and fed to the model; the output is then cropped to the exact small FoV region. This allows the model to use surrounding tissue context beyond the small FoV boundary.
 
+<p align="center">
+  <img src="assets/tissue_pipeline.png" width="600"/>
+  <br><em>Fig. 2. Tissue segmentation pipeline.</em>
+</p>
+
 **Stage 2 — Cell Detection:**  
 An **Attention U-Net with ResNet34 encoder** (pretrained on ImageNet, fine-tuned on OCELOT) takes the small FoV as input and outputs a two-channel cell probability map (one channel per class). Post-processing detects local maxima, extracts confidence scores, and applies cross-channel filtering to resolve conflicting predictions.
 
 <p align="center">
   <img src="assets/pipeline.png" width="600"/>
-  <br><em>Fig. 2. Cell detection pipeline.</em>
+  <br><em>Fig. 3. Cell detection pipeline.</em>
 </p>
 
 ### Integration Strategies
@@ -65,12 +70,12 @@ The pre-processing strategy allows the model to **learn from tissue context duri
 
 <p align="center">
   <img src="assets/integration_preprocessing.png" width="500"/>
-  <br><em>Fig. 3. Pre-processing stage integration.</em>
+  <br><em>Fig. 4. Pre-processing stage integration.</em>
 </p>
 
 <p align="center">
   <img src="assets/integration_postprocessing.png" width="500"/>
-  <br><em>Fig. 4. Post-processing stage integration.</em>
+  <br><em>Fig. 5. Post-processing stage integration.</em>
 </p>
 
 ---
@@ -119,18 +124,18 @@ Our method achieves the **largest mF1 improvement** (+0.1205) among reported met
 
 - **Pre-processing integration** achieves the best overall mF1 and is well-balanced across both classes — recommended when training resources are available.
 - **Post-processing integration** achieves the highest tumor cell recall (0.7375 on test), which is particularly relevant in clinical settings where missing a tumor cell is costly — and requires no retraining.
-- When the tumor region probability map is reliable, integration leads to noticeably more accurate tumor cell detection (Fig. 5). However, when tumor cells are dispersed among background cells, the spatial context from the probability map provides limited benefit even if the map itself is reliable (Fig. 6).
+- When the tumor region probability map is reliable, integration leads to noticeably more accurate tumor cell detection (Fig. 6). However, when tumor cells are dispersed among background cells, the spatial context from the probability map provides limited benefit even if the map itself is reliable (Fig. 7).
 
 ### Qualitative Results
 
 <p align="center">
   <img src="assets/qualitative_success.png" width="600"/>
-  <br><em>Fig. 5. Success case.</em>
+  <br><em>Fig. 6. Success case.</em>
 </p>
 
 <p align="center">
   <img src="assets/qualitative_limitation.png" width="600"/>
-  <br><em>Fig. 6. Limitation case.</em>
+  <br><em>Fig. 7. Limitation case.</em>
 </p>
 
 ---
