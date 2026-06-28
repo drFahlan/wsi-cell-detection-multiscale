@@ -90,16 +90,8 @@ The small FoV images were inspected for color artifacts — pixels outside the e
 
 ### Texture analysis
 
-Gray level quantization (256, 128, 64, 32, 16 levels) and spatial block sizes (1, 4, 8, 16, 32 px) were explored to assess how much texture detail is preserved at different resolutions. This informs whether downsampling or aggressive augmentation would risk losing discriminative texture features.
+Gray level quantization (256, 128, 64, 32, 16 levels) and spatial block sizes (1, 4, 8, 16, 32 px) were explored to assess how much texture detail is preserved at different resolutions. Laplacian variance-based blur detection was also applied to cell region patches as part of this analysis, to identify images where nuclei boundaries may be too indistinct for reliable segmentation.
 
-**Decision:** Sufficient texture detail is retained at the native resolution. No aggressive resolution reduction was applied during preprocessing, and augmentation was kept mild to preserve texture cues.
+**Decision:** Sufficient texture detail is retained at the native resolution and no systematic blur issues were found. No aggressive resolution reduction was applied during preprocessing, and augmentation was kept mild to preserve texture cues. No samples were excluded on this basis.
 
 <!-- figure: gray level / block size comparison grid -->
-
----
-
-### Blur detection
-
-Laplacian variance-based blur detection was applied to cell region patches to identify images where nuclei boundaries may be too indistinct for reliable segmentation.
-
-**Decision:** No systematic blur issues were found. No samples were excluded on this basis.
