@@ -25,3 +25,45 @@ The boundary between cancer and non-cancer regions in the large FoV is not alway
 At the high-magnification small FoV, individual cell nuclei are clearly visible and separable from surrounding tissue. Deep feature extraction is not necessary for cell localization.
 
 **Decision:** A lightweight Attention U-Net with ResNet34 encoder was chosen for cell detection. This keeps model complexity low so that performance differences between experimental conditions reflect the integration strategy rather than the model itself.
+
+---
+
+## Full EDA
+
+### Dataset verification
+
+Both large FoV (tissue) and small FoV (cell) data were verified for completeness, format consistency, coordinate sanity, and annotation integrity across all splits. Two samples (test-bladder, test-endometrium) were excluded from evaluation due to annotation issues. Class distribution was confirmed to be balanced between tumor and background cells.
+
+---
+
+### GT mask design
+
+The point annotations provided by OCELOT need to be converted to mask annotations for cell segmentation training. Three approaches were explored:
+
+- **Nuclick / Adapted Nuclick** — instance segmentation masks; produces precise cell boundaries but requires additional segmentation tooling and is sensitive to annotation quality
+- **Dot mask** — simple filled circles at each cell center; fast to generate but provides no spatial emphasis on the cell center vs. its periphery
+- **Gaussian mask** — soft probability map centered at each cell point, clipped at a maximum radius
+
+Within the Gaussian approach, multiple radius values (`[1, 5, 15, 30, 60]` px) and standard deviations (`[3, 5, 6, 7, 12]`) were evaluated visually. A smaller std emphasizes the cell center more sharply, which benefits local maxima detection in post-processing.
+
+**Decision:** Gaussian mask was chosen with max radius 11px and std 4. Radius 11px ensures the mask covers the cell body (observed range: 12–30px) without excessively overlapping adjacent cells. Std 4 produces a sharp enough peak at the cell center to support reliable local maxima detection downstream.
+
+---
+
+### Cell radius distribution
+
+Visual inspection of cell annotations overlaid on small FoV images confirmed that typical cell radii range from **12 to 30 pixels** at the given resolution (~0.19 µm/px).
+
+**Decision:** Informed the Gaussian mask radius (11px), the post-processing local maxima minimum distance (15px), and the confidence score extraction radius (25px).
+
+---
+
+### Image quality checks
+
+Blur detection, color artifact detection, and texture analysis were run across the small FoV images.
+
+- **Color artifacts:** A small number of patches contained non-H&E colors (e.g. ink marks). These were flagged for awareness but did not require removal given their low frequency.
+- **Blur:** Laplacian variance-based blur detection was applied to cell region patches. No systematic blur issues were found.
+- **Texture:** Gray level quantization and block size analysis confirmed sufficient texture detail for feature extraction at the chosen resolution.
+
+**Decision:** No samples were excluded based on image quality. Results confirmed that the dataset is clean enough to train without additional quality filtering.
