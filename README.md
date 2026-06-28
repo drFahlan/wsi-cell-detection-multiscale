@@ -25,7 +25,7 @@ The [OCELOT 2023](https://ocelot.grand-challenge.org/) dataset is specifically d
 | Cell annotation | Point annotations: **tumor cell** / **background cell** (balanced) |
 | Tissue annotation | Pixel-level: **cancer area** / **non-cancer area** |
 
-EDA findings that motivated design decisions are in [`eda/README.md`](eda/README.md).
+EDA revealed that tumor and background cells are morphologically diverse within their own classes, but **spatial arrangement** — particularly the tendency of tumor cells to cluster within cancer tissue regions — consistently emerged as the primary discriminating factor. This directly motivated the tissue integration study. Full findings in [`eda/README.md`](eda/README.md).
 
 <p align="center">
   <img src="assets/dataset_sample.png" width="480"/>
@@ -41,7 +41,7 @@ EDA findings that motivated design decisions are in [`eda/README.md`](eda/README
 The pipeline consists of two stages run sequentially:
 
 **Stage 1 — Tissue Segmentation:**  
-A **U-Net++ with SE-ResNet50 encoder** generates a tumor region probability map from the large FoV. The inference strategy is designed to supply the cell detection pipeline with tissue context that extends beyond the small FoV boundary.
+A **U-Net++ with SE-ResNet50 encoder** generates a tumor region probability map from the large FoV. U-Net++'s dense feature reuse and SE-ResNet50's channel-wise attention are chosen to handle the visually ambiguous cancer boundaries observed in EDA. The inference strategy is designed to supply the cell detection pipeline with tissue context that extends beyond the small FoV boundary, giving the model a wider spatial view for more reliable predictions.
 
 <p align="center">
   <img src="assets/tissue_pipeline.png" width="600"/>
@@ -49,7 +49,7 @@ A **U-Net++ with SE-ResNet50 encoder** generates a tumor region probability map 
 </p>
 
 **Stage 2 — Cell Detection:**  
-An **Attention U-Net with ResNet34 encoder** takes the small FoV as input and produces per-class cell predictions, followed by post-processing to extract cell locations and resolve conflicting predictions.
+An **Attention U-Net with ResNet34 encoder** takes the small FoV as input and produces per-class cell predictions, followed by post-processing to extract cell locations and resolve conflicting predictions. Since cells are visually distinguishable at the small FoV scale, a lightweight encoder suffices — and keeping the model simple ensures the performance difference between conditions reflects the integration strategy, not model complexity.
 
 <p align="center">
   <img src="assets/pipeline.png" width="600"/>
