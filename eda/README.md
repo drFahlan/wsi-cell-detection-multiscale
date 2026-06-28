@@ -56,6 +56,19 @@ Both large FoV (tissue) and small FoV (cell) data were verified for completeness
 
 ---
 
+### Cell visual analysis
+
+Visual inspection of cell appearances across both classes was conducted before drawing conclusions about the primary discriminating factor. Cells were examined across multiple samples to assess whether morphological features — shape, size, staining intensity — were consistent enough within each class to serve as a reliable classifier.
+
+The analysis revealed high intra-class morphological diversity: tumor cells and background cells each exhibit a wide range of appearances, making visual separation by morphology alone unreliable. This led to the investigation of spatial context as an alternative discriminating factor.
+
+<p align="center">
+  <img src="../assets/eda_cell_visual_analysis.png" width="600"/>
+  <br><em>Cell visual analysis: morphological diversity within each class makes appearance-based classification unreliable.</em>
+</p>
+
+---
+
 ### GT mask design
 
 The point annotations provided by OCELOT need to be converted to mask annotations for cell segmentation training. Three approaches were explored:
