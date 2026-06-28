@@ -11,6 +11,11 @@ Tumor and background cells show high intra-class morphological diversity — app
 **Decision:** Rather than improving cell-level feature extraction, the focus shifted to injecting tissue-level spatial context into the cell detection pipeline — motivating the entire integration strategy study.
 
 <p align="center">
+  <img src="../assets/eda_cell_visual_analysis.png" width="600"/>
+  <br><em>Cell visual analysis: high intra-class morphological diversity makes appearance alone unreliable as a classifier.</em>
+</p>
+
+<p align="center">
   <img src="../assets/eda_spatial_arrangement.png" width="500"/>
   <br><em>Blue = tumor cells, yellow = background cells. Tumor cells cluster together within cancer regions.</em>
 </p>
@@ -84,7 +89,10 @@ The small FoV images were inspected for color artifacts — pixels outside the e
 
 **Decision:** A small number of patches contained non-H&E colors. Their frequency was low enough that no samples needed to be excluded, and no color normalization was applied. Results confirmed the dataset is stain-consistent enough to train without preprocessing.
 
-<!-- figure: color artifact detection output — flagged patches or per-image foreign pixel count -->
+<p align="center">
+  <img src="../assets/eda_color_analysis.png" width="600"/>
+  <br><em>Color analysis: detection of non-H&E pixels across small FoV patches.</em>
+</p>
 
 ---
 
@@ -94,4 +102,7 @@ Gray level quantization (256, 128, 64, 32, 16 levels) and spatial block sizes (1
 
 **Decision:** Sufficient texture detail is retained at the native resolution and no systematic blur issues were found. No aggressive resolution reduction was applied during preprocessing, and augmentation was kept mild to preserve texture cues. No samples were excluded on this basis.
 
-<!-- figure: gray level / block size comparison grid -->
+<p align="center">
+  <img src="../assets/eda_texture.png" width="600"/>
+  <br><em>Texture analysis: gray level quantization and blur detection across small FoV patches.</em>
+</p>
