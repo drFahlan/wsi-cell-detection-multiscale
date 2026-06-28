@@ -1,4 +1,4 @@
-# Evaluation of Integration Strategies for Tumor Cell Detection on the OCELOT Dataset
+# Tissue-Guided Tumor Cell Detection: Evaluating Integration Strategies on the OCELOT Dataset
 
 **Dwi Rezky Fahlan, Allya Paramita Koesoema, Windy Gambetta**  
 School of Electrical Engineering and Informatics, Institut Teknologi Bandung
