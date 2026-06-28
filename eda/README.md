@@ -10,6 +10,11 @@ Tumor and background cells show high intra-class morphological diversity — app
 
 **Decision:** Rather than improving cell-level feature extraction, the focus shifted to injecting tissue-level spatial context into the cell detection pipeline — motivating the entire integration strategy study.
 
+<p align="center">
+  <img src="../assets/eda_spatial_arrangement.png" width="500"/>
+  <br><em>Blue = tumor cells, yellow = background cells. Tumor cells cluster together within cancer regions.</em>
+</p>
+
 ---
 
 ### Cancer boundaries in the tissue FoV are visually ambiguous
@@ -18,6 +23,11 @@ The boundary between cancer and non-cancer regions in the large FoV is not alway
 
 **Decision:** U-Net++ with SE-ResNet50 encoder was chosen for tissue segmentation — dense feature reuse across scales for boundary detail, channel-wise attention for distinguishing ambiguous regions. High tissue segmentation accuracy was treated as a prerequisite, since the probability map feeds all splits (train/val/test) of the cell detection pipeline.
 
+<p align="center">
+  <img src="../assets/eda_cancer_boundary.png" width="350"/>
+  <br><em>Tissue FoV and its binary annotation. Cancer boundaries are irregular and non-trivial to delineate.</em>
+</p>
+
 ---
 
 ### Cells are visually distinguishable at the small FoV scale
@@ -25,6 +35,11 @@ The boundary between cancer and non-cancer regions in the large FoV is not alway
 At the high-magnification small FoV, individual cell nuclei are clearly visible and separable from surrounding tissue. Deep feature extraction is not necessary for cell localization.
 
 **Decision:** A lightweight Attention U-Net with ResNet34 encoder was chosen for cell detection. This keeps model complexity low so that performance differences between experimental conditions reflect the integration strategy rather than the model itself.
+
+<p align="center">
+  <img src="../assets/eda_cell_distinguishable.png" width="400"/>
+  <br><em>Cell nuclei are clearly visible and separable at the small FoV scale.</em>
+</p>
 
 ---
 
@@ -47,6 +62,11 @@ The point annotations provided by OCELOT need to be converted to mask annotation
 Within the Gaussian approach, multiple radius values (`[1, 5, 15, 30, 60]` px) and standard deviations (`[3, 5, 6, 7, 12]`) were evaluated visually. A smaller std emphasizes the cell center more sharply, which benefits local maxima detection in post-processing.
 
 **Decision:** Gaussian mask was chosen with max radius 11px and std 4. Radius 11px ensures the mask covers the cell body (observed range: 12–30px) without excessively overlapping adjacent cells. Std 4 produces a sharp enough peak at the cell center to support reliable local maxima detection downstream.
+
+<p align="center">
+  <img src="../assets/eda_gaussian_mask.png" width="500"/>
+  <br><em>Gaussian dot mask (left) and its 3D profile (right), showing sharp peaks centered at each cell location.</em>
+</p>
 
 ---
 
