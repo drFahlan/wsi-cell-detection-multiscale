@@ -87,7 +87,7 @@ Visual inspection of cell annotations overlaid on small FoV images confirmed tha
 
 The small FoV images were inspected for color artifacts — pixels outside the expected H&E stain palette (red, blue, purple, pink, white, black). This checks whether the dataset contains staining inconsistencies or foreign markings that could mislead the model.
 
-**Decision:** A small number of patches contained non-H&E colors. Their frequency was low enough that no samples needed to be excluded, and no color normalization was applied. Results confirmed the dataset is stain-consistent enough to train without preprocessing.
+**Decision:** A small number of patches contained non-H&E colors. Their frequency was low enough that no samples needed to be excluded, and no color normalization was applied. The H channel was considered as an additional input to better highlight cell nuclei, but the standard three-channel RGB input was found sufficient. Results confirmed the dataset is stain-consistent enough to train without additional preprocessing.
 
 <p align="center">
   <img src="../assets/eda_color_analysis.png" width="600"/>
@@ -98,11 +98,11 @@ The small FoV images were inspected for color artifacts — pixels outside the e
 
 ### Texture analysis
 
-Gray level quantization (256, 128, 64, 32, 16 levels) and spatial block sizes (1, 4, 8, 16, 32 px) were explored to assess how much texture detail is preserved at different resolutions. Laplacian variance-based blur detection was also applied to cell region patches as part of this analysis, to identify images where nuclei boundaries may be too indistinct for reliable segmentation.
+GLCM-based (Haralick) texture analysis was applied to the small FoV images, with contrast and dissimilarity displayed as the primary features. Laplacian variance-based blur detection was also applied to assess whether nuclei boundaries were sufficiently sharp for reliable segmentation. This was explored with the hypothesis that texture features could serve as a useful preprocessing signal.
 
-**Decision:** Sufficient texture detail is retained at the native resolution and no systematic blur issues were found. No aggressive resolution reduction was applied during preprocessing, and augmentation was kept mild to preserve texture cues. No samples were excluded on this basis.
+**Decision:** The texture features did not reveal patterns that warranted additional preprocessing steps — the native three-channel RGB input was found to be sufficient. The H (hematoxylin) channel was considered to better highlight cell nuclei, but was ruled out as the standard RGB input already captures sufficient discriminative information. No samples were excluded on this basis.
 
 <p align="center">
   <img src="../assets/eda_texture.png" width="600"/>
-  <br><em>Texture analysis: gray level quantization and blur detection across small FoV patches.</em>
+  <br><em>GLCM texture analysis: contrast and dissimilarity across small FoV patches.</em>
 </p>
