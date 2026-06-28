@@ -78,12 +78,28 @@ Visual inspection of cell annotations overlaid on small FoV images confirmed tha
 
 ---
 
-### Image quality checks
+### Color analysis
 
-Blur detection, color artifact detection, and texture analysis were run across the small FoV images.
+The small FoV images were inspected for color artifacts — pixels outside the expected H&E stain palette (red, blue, purple, pink, white, black). This checks whether the dataset contains staining inconsistencies or foreign markings that could mislead the model.
 
-- **Color artifacts:** A small number of patches contained non-H&E colors (e.g. ink marks). These were flagged for awareness but did not require removal given their low frequency.
-- **Blur:** Laplacian variance-based blur detection was applied to cell region patches. No systematic blur issues were found.
-- **Texture:** Gray level quantization and block size analysis confirmed sufficient texture detail for feature extraction at the chosen resolution.
+**Decision:** A small number of patches contained non-H&E colors. Their frequency was low enough that no samples needed to be excluded, and no color normalization was applied. Results confirmed the dataset is stain-consistent enough to train without preprocessing.
 
-**Decision:** No samples were excluded based on image quality. Results confirmed that the dataset is clean enough to train without additional quality filtering.
+<!-- figure: color artifact detection output — flagged patches or per-image foreign pixel count -->
+
+---
+
+### Texture analysis
+
+Gray level quantization (256, 128, 64, 32, 16 levels) and spatial block sizes (1, 4, 8, 16, 32 px) were explored to assess how much texture detail is preserved at different resolutions. This informs whether downsampling or aggressive augmentation would risk losing discriminative texture features.
+
+**Decision:** Sufficient texture detail is retained at the native resolution. No aggressive resolution reduction was applied during preprocessing, and augmentation was kept mild to preserve texture cues.
+
+<!-- figure: gray level / block size comparison grid -->
+
+---
+
+### Blur detection
+
+Laplacian variance-based blur detection was applied to cell region patches to identify images where nuclei boundaries may be too indistinct for reliable segmentation.
+
+**Decision:** No systematic blur issues were found. No samples were excluded on this basis.
