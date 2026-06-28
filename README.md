@@ -9,13 +9,13 @@ School of Electrical Engineering and Informatics, Institut Teknologi Bandung
 
 ## Overview
 
-The OCELOT dataset enables feature sharing between tissue segmentation and cell detection, yet the impact of different integration strategies on cell detection performance remains underexplored. We systematically evaluate **pre-processing** and **post-processing** integration strategies under a consistent pipeline. Pre-processing integration achieves the highest overall mF1 (0.6929) and the largest improvement over the no-integration baseline (+0.1205) among related works on the same evaluation set. Post-processing integration yields the highest tumor cell recall. Both strategies outperform the baseline, and the detailed comparison provides practical guidance for designing integration strategies in future multi-task cell detection research.
+Accurate tumor cell detection in histopathology depends not only on cellular morphology, but also on spatial tissue context — yet most pipelines treat these as separate concerns. The OCELOT dataset uniquely enables studying their relationship by providing matched dual-scale image pairs with both cell-level and tissue-level annotations. Despite this, the impact of different tissue integration strategies on cell detection performance remains underexplored. We systematically evaluate **pre-processing** and **post-processing** integration strategies under a consistent pipeline. Pre-processing integration achieves the highest overall mF1 (0.6929) and the largest improvement over the no-integration baseline (+0.1205) among related works on the same evaluation set. Post-processing integration yields the highest tumor cell recall. Both strategies outperform the baseline, and the detailed comparison provides practical guidance for designing integration strategies in future multi-task cell detection research.
 
 ---
 
 ## Dataset
 
-The [OCELOT 2023](https://ocelot.grand-challenge.org/) dataset contains dual-scale histopathology image pairs collected from 306 TCGA WSIs across 6 organs (kidney, head-and-neck, prostate, stomach, endometrium, bladder). Annotations were produced by board-certified pathologists.
+The [OCELOT 2023](https://ocelot.grand-challenge.org/) dataset is specifically designed to facilitate the study of cell-tissue relationships in histopathology. Each sample consists of a matched dual-scale image pair — a high-magnification **small FoV** for cell detection and a lower-magnification **large FoV** for tissue segmentation — with annotations provided at both scales. This structure is what makes it possible to systematically study how tissue-level information can be integrated into a cell detection pipeline. Images are collected from 306 TCGA WSIs across 6 organs, annotated by board-certified pathologists.
 
 | Property | Detail |
 |---|---|
@@ -41,7 +41,7 @@ EDA findings that motivated design decisions are in [`eda/README.md`](eda/README
 The pipeline consists of two stages run sequentially:
 
 **Stage 1 — Tissue Segmentation:**  
-A **U-Net++ with SE-ResNet50 encoder** (pretrained on ImageNet, fine-tuned on OCELOT) generates a tumor region probability map from the large FoV. During inference, a 512×512 patch centered on the small FoV is extracted from the large FoV and fed to the model; the output is then cropped to the exact small FoV region. This allows the model to use surrounding tissue context beyond the small FoV boundary.
+A **U-Net++ with SE-ResNet50 encoder** generates a tumor region probability map from the large FoV. The inference strategy is designed to supply the cell detection pipeline with tissue context that extends beyond the small FoV boundary.
 
 <p align="center">
   <img src="assets/tissue_pipeline.png" width="600"/>
@@ -49,7 +49,7 @@ A **U-Net++ with SE-ResNet50 encoder** (pretrained on ImageNet, fine-tuned on OC
 </p>
 
 **Stage 2 — Cell Detection:**  
-An **Attention U-Net with ResNet34 encoder** (pretrained on ImageNet, fine-tuned on OCELOT) takes the small FoV as input and outputs a two-channel cell probability map (one channel per class). Post-processing detects local maxima, extracts confidence scores, and applies cross-channel filtering to resolve conflicting predictions.
+An **Attention U-Net with ResNet34 encoder** takes the small FoV as input and produces per-class cell predictions, followed by post-processing to extract cell locations and resolve conflicting predictions.
 
 <p align="center">
   <img src="assets/pipeline.png" width="600"/>
