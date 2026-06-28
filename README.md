@@ -58,15 +58,15 @@ An **Attention U-Net with ResNet34 encoder** takes the small FoV as input and pr
 
 ### Integration Strategies
 
-The tumor region probability map from Stage 1 is injected into Stage 2 at two different points:
+Given that spatial arrangement — not morphology — is the primary factor in classifying tumor vs. background cells, the tumor region probability map from Stage 1 provides directly relevant contextual information. The core hypothesis is that supplying this spatial context to the cell detection model should improve its classification ability.
+
+Two integration points were evaluated: injecting the probability map **as an additional input** at the pre-processing stage, so the model can learn to use tissue context during training; or using it only **as a classification lever at post-processing**, to refine confidence scores after the model has already made its predictions. The post-processing approach is appealing because it requires no retraining and can be applied on top of any existing cell detection model.
 
 | Strategy | Where | How |
 |---|---|---|
 | **Baseline** | — | No integration; cell detection uses only the small FoV |
-| **Pre-processing** | Input | Tumor probability map concatenated to the small FoV → 4-channel input |
+| **Pre-processing** | Input | Tumor probability map concatenated to the small FoV → 4-channel input; model learns tissue context end-to-end |
 | **Post-processing** | Confidence scoring | Gaussian-weighted sampling from the tumor probability map refines per-cell confidence scores before cross-channel filtering |
-
-The pre-processing strategy allows the model to **learn from tissue context during training**. The post-processing strategy is training-free and provides greater flexibility, but the model itself receives no tissue information during learning.
 
 <p align="center">
   <img src="assets/integration_preprocessing.png" width="500"/>
